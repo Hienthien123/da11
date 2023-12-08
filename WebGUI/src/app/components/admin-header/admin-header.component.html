@@ -1,0 +1,16 @@
+<ul class="navbar-nav ml-auto">
+  <li class="d-flex justify-content-start me-md-4" style="font-size: 1rem;padding-right:15px ;padding-top:5px">
+    <i (click)="openNotification()" id="noti-icon" matTooltip="{{haveNewAlert ? 'Bạn có thông báo mới' : 'Thông báo'}}"
+      class="icon-container fas fa-bell text-info" style="font-size: 1rem; "></i>
+    <sup *ngIf="haveNewAlert" style="margin-left: -10px;" class="text-danger"><i class="fas fa-circle"></i></sup>
+  </li>
+
+  <li class="d-md-block" style="font-size: 1rem;padding-right:15px ;">
+    <span class="fs-6 mb-2 fw-bold">{{userInfo.displayName}}</span>
+  </li>
+  <li class="d-md-block">
+    <i matTooltip="Đăng xuất" (click)="logOut()" class="fas fa-sign-out-alt ms-4 text-danger"
+      style="font-size: 1rem;padding-right:5px;"></i>
+
+  </li>
+  </ul>

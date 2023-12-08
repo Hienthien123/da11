@@ -1,0 +1,396 @@
+<!-- <div class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1 *ngIf="code == '0'">Tất cả chữ ký số</h1>
+        <h1 *ngIf="code == '2'">Danh sách tạm lưu</h1>
+        <h1 *ngIf="code == '3'">Tờ trình chờ phê duyệt</h1>
+        <h1 *ngIf="code == '4'">Tờ trình đã phê duyệt</h1>
+        <h1 *ngIf="code == '5'">Tờ trình đã duyệt và ý kiến</h1>
+        <h1 *ngIf="code == '6'">Tờ trình đang xử lí</h1>
+        <h1 *ngIf="code == '7'">Tờ trình quá hạn</h1>
+      </div>
+
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item active">Trang chủ</li>
+          <li class="breadcrumb-item">
+            <span *ngIf="code == '0'">Tất cả chữ ký số</span>
+            <span *ngIf="code == '2'">Danh sách tạm lưu</span>
+            <span *ngIf="code == '3'">Tờ trình chờ phê duyệt</span>
+            <span *ngIf="code == '4'">Tờ trình đã phê duyệt</span>
+            <span *ngIf="code == '5'">Tờ trình đã duyệt và ý kiến</span>
+            <span *ngIf="code == '6'">Tờ trình không được duyệt</span>
+            <span *ngIf="code == '7'">Tờ trình quá hạn</span>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">
+              <button *ngIf="code=='0'"  class="btn btn-primary" [routerLink]="['add']"><i
+                  class="fas fa-plus-circle"></i>Thêm mới chữ ký số</button>
+            </h3>
+          </div>
+          
+          <div class="card-body overflow-auto">
+            <table class="table table-bordered">
+              <thead>
+                <tr>
+                  <th scope="col">STT</th>
+                  <th scope="col">Tên</th>
+                  <th scope="col">Ngày Đăng ký</th>
+                  <th scope="col">Hạn phê duyệt</th>
+                  <th scope="col">Người Đăng ký</th>
+                  <th scope="col">Lĩnh vực</th>
+                  <th *ngIf="code == '0'" scope="col">Trạng thái</th>
+                  <th *ngIf="userRoles.approver" scope="col">Đánh giá của tôi</th>
+                  <th scope="col">Hành động</th>
+                </tr>
+              </thead>
+              <tbody class="align-middle"
+                *ngFor="let document of documents | paginate: { itemsPerPage: itemsPerPage, currentPage: currentPage }; let i = index">
+                <tr>
+                  <td>{{i+1}}</td>
+                  <td>{{document.title}}</td>
+                  <td>{{document.created | date: 'hh:mm aa dd/MM/yyyy'}}</td>
+                  <td>{{document.dateEndApproval | date: 'dd/MM/yyyy'}}</td>
+                  <td>{{document.authorName}}</td>
+                  <td>{{document.fieldName}}</td>
+                  <td *ngIf="code == '0'" [ngClass]="document.statusCode == 2 ? ''
+                                : document.statusCode == 3 ? 'text-bg-warning'
+                                : document.statusCode == 4 ? 'text-bg-success'
+                                : document.statusCode == 5 ? 'text-bg-primary'
+                                : document.statusCode == 6 ? 'text-bg-danger'
+                                : 'text-bg-secondary'">
+                    {{document.statusCode == 2 ? 'Tạm lưu'
+                    : document.statusCode == 3 ? 'Chờ duyệt'
+                    : document.statusCode == 4 ? 'Đã duyệt'
+                    : document.statusCode == 5 ? 'Ý kiến'
+                    : document.statusCode == 6 ? 'Không duyệt'
+                    : 'Quá hạn'}}</td>
+                  <td *ngIf="userRoles.approver" [ngClass]="document.actionClass || ''">
+                    {{document.approverAction}}
+                  </td>
+                  <td>
+                    <div>
+                      <div class="btn-group">
+                        <button type="button" class="btn btn-info" (click)="showAction(document.id)"><i class="fas fa-bars"></i></button>                        
+                        <div *ngIf="actionToShow == document.id" class="dropdown-menu" style="display: block !important; left: -160% !important;" role="menu">
+                          <div *ngIf="userRoles.specialist">
+                            <a class="dropdown-item" *ngIf="document.statusCode == 2 || document.statusCode == 6 || document.statusCode == 7"
+                              [routerLink]="['xu-ly', document.id]"><i class="fas fa-edit"></i> Chỉnh sửa</a>
+                            <a class="dropdown-item" [routerLink]="['document-detail', document.id]"><i class="fas fa-eye"></i> Xem</a>
+                            <a *ngIf="document.statusCode == 2 || document.statusCode == 6" (click)="updateStatus(document.id, 3)"
+                              class="dropdown-item"><i class="fas fa-share-square"></i> Gửi duyệt</a>
+                            <a *ngIf="document.statusCode == 2" (click)="deleteDocument(document.id)" class="dropdown-item">
+                              <i class="fas fa-trash-alt"></i> Xóa</a>
+                          </div>
+                          <div *ngIf="userRoles.generalSpecialist">                            
+                            <a class="dropdown-item" [routerLink]="['document-detail', document.id]"><i class="fas fa-eye"></i> Kết quả xử lý</a>
+                            
+                            <a class="dropdown-item" *ngIf="document.statusCode == 3" (click)="remind(document.id)"><i class="fas fa-bell"></i> Nhắc duyệt</a>
+                          </div>
+                          <div *ngIf="userRoles.approver">                            
+                              <a class="dropdown-item" [routerLink]="['document-detail', document.id]"><i class="fas fa-highlighter"></i> Xử lý</a>                            
+                          </div>
+                        </div>
+                      </div>                      
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <div class="card-footer clearfix">
+            <pagination-controls [nextLabel]="'Sau'" [previousLabel]="'Trước'" [autoHide]="true"
+              (pageChange)="currentPage = $event"></pagination-controls>
+
+          </div>
+        </div>
+        
+      </div>
+      
+    </div>
+    
+  </div>
+</section> -->
+
+<!-- ======================= -->
+
+<!-- === -->
+
+<div class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1 *ngIf="code == '0'"></h1>
+        <h1 *ngIf="code == '2'">Danh sách đang hoạt động</h1>
+        <h1 *ngIf="code == '3'">Danh sách dừng hoạt động</h1>
+        <h1 *ngIf="code == '4'">Danh sách thu hồi</h1>
+        <h1 *ngIf="code == '5'">Tờ trình đã duyệt và ý kiến</h1>
+        <h1 *ngIf="code == '6'">Tờ trình không được duyệt</h1>
+        <h1 *ngIf="code == '7'">Tờ trình quá hạn</h1>
+      </div><!-- /.col -->
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item active">Trang chủ</li>
+          <li class="breadcrumb-item">
+            <span *ngIf="code == '0'">Yêu cầu mới</span>
+            <span *ngIf="code == '2'">Danh sách đang hoạt động</span>
+            <span *ngIf="code == '3'">Danh sách dừng hoạt động</span>
+            <span *ngIf="code == '4'">Danh sách thu hồi</span>
+            <span *ngIf="code == '5'">Tờ trình đã duyệt và ý kiến</span>
+            <span *ngIf="code == '6'">Tờ trình không được duyệt</span>
+            <span *ngIf="code == '7'">Tờ trình quá hạn</span>
+          </li>
+        </ol>
+      </div><!-- /.col -->
+    </div><!-- /.row -->
+  </div><!-- /.container-fluid -->
+</div>
+
+<section class="content">
+<!-- form search -->
+<div style="padding: 10px; border-style: ridge;">
+  <div class="col-md-12 col-sm-12 col-xs-12 formTimKiem">
+    <div class="tra-cuu-thong-tin">TÌM KIẾM</div>
+    <div class="container-tra-cuu">
+      <div>
+        <div class="form-group row" style="font-weight: bold;">
+          <div class="col-sm-3">
+            Tổng số Chữ ký số: 8456
+          </div>
+          <div class="col-sm-3">
+            Đang hoạt động: 294
+          </div>
+          <div class="col-sm-3">
+            Dừng hoạt động: 122
+          </div>
+          <div class="col-sm-3">
+            Thu hồi: 2345
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-2 col-form-label">
+            Họ tên
+          </label>
+          <div class="col-sm-3">
+            <input name="dnn$ctr1357$DS_DuAn_admin$txtName" type="text" id="dnn_ctr1357_DS_DuAn_admin_txtName"
+              class="form-control" style="width:100%;">
+  
+          </div>
+          <label class="col-sm-2 col-form-label">
+            Số điện thoại
+          </label>
+          <div class="col-sm-3">
+            <input name="dnn$ctr1357$DS_DuAn_admin$txtMaXB" type="text" id="dnn_ctr1357_DS_DuAn_admin_txtMaXB"
+              class="form-control" style="width:100%;">
+  
+          </div>
+          <div class="col-sm-2">
+            <input type="submit" name="dnn$ctr1357$DS_DuAn_admin$btnSearch" value="Tìm kiếm"
+              id="dnn_ctr1357_DS_DuAn_admin_btnSearch" class="btn btn-primary btn-flat btn-timkiem">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-2 col-form-label">
+            Đơn vị
+          </label>
+          <div class="col-sm-3">
+            <select name="dnn$ctr1357$DS_DuAn_admin$ddlStatus" id="dnn_ctr1357_DS_DuAn_admin_ddlStatus"
+              class="form-control">
+              <option selected="selected" value="">--Đơn vị--</option>
+              <option value="True">Đơn vị 1</option>
+              <option value="False">Đơn vị 1</option>
+  
+            </select>
+          </div>
+          <label class="col-sm-2 col-form-label">
+            Địa chỉ thử điện tử 
+          </label>
+          <div class="col-sm-3">
+            <select name="dnn$ctr1357$DS_DuAn_admin$ddlNopCung" id="dnn_ctr1357_DS_DuAn_admin_ddlNopCung"
+              class="form-control">
+              <option selected="selected" value="">--Thư điện tử--</option>
+              <option value="True">nguyenAnh@gmail.com</option>
+              <option value="False">nguyenAnh@gmail.com</option>
+  
+            </select>
+          </div>
+          <div class=" " style="display: none">
+            <select name="dnn$ctr1357$DS_DuAn_admin$ddlKhopLC" id="dnn_ctr1357_DS_DuAn_admin_ddlKhopLC"
+              class="form-control">
+              <option selected="selected" value="">--Thư điện--</option>
+              <option value="True">Có</option>
+              <option value="False">Không</option>
+  
+            </select>
+          </div>
+          <div class=" " style="display: none">
+            <select name="dnn$ctr1357$DS_DuAn_admin$ddlNopBo" id="dnn_ctr1357_DS_DuAn_admin_ddlNopBo"
+              class="form-control">
+              <option selected="selected" value="">--Đã nộp Bộ--</option>
+              <option value="True">Có</option>
+              <option value="False">Không</option>
+  
+            </select>
+          </div>
+  
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">
+              <button  class="btn btn-primary" [routerLink]="['add']"><i
+                  class="fas fa-plus-circle"></i>Thêm mới chữ ký số</button>
+            </h3>
+          </div>
+          <!-- /.card-header -->
+          <div class="card-body overflow-auto">
+            <table class="table table-bordered">
+              <thead>
+                <tr>
+                  <th scope="col">STT</th>
+                  <th scope="col">Họ và tên</th>
+                  <th scope="col">Ngày sinh</th>
+                  <th scope="col">Số CMND/CCCD/Hộ chiếu; <br> Ngày cấp, nơi cấp</th>
+                  <th scope="col">Địa chỉ thư điện tử công vụ (1)</th>
+                  <th scope="col">Tên cơ quan, tổ chức công tác</th>
+                  <th scope="col">Tỉnh/Thành phố (2)</th>
+                  <th scope="col">Chức vụ</th>
+                  <th scope="col">Số điện thoại di động</th>
+                  <th scope="col">Số hiệu chứng thư số cũ (nếu có)</th>
+                  <th scope="col">SIM PKI (3)</th>
+
+                  <!-- <th *ngIf="code == '0'" scope="col">Trạng thái</th>
+                  <th *ngIf="userRoles.approver" scope="col">Đánh giá của tôi</th> -->
+                  <th scope="col">Hành động</th>
+                </tr>
+              </thead>
+              <tbody class="align-middle"
+                *ngFor="let document of documents | paginate: { itemsPerPage: itemsPerPage, currentPage: currentPage }; let i = index">
+                <!-- <tr>
+                  <td>{{i+1}}</td>
+                  <td>{{document.title}}</td>
+                  <td>{{document.created | date: 'hh:mm aa dd/MM/yyyy'}}</td>
+                  <td>{{document.dateEndApproval | date: 'dd/MM/yyyy'}}</td>
+                  <td>{{document.authorName}}</td>
+                  <td>{{document.fieldName}}</td>
+                  <td *ngIf="code == '0'" [ngClass]="document.statusCode == 2 ? ''
+                                : document.statusCode == 3 ? 'text-bg-warning'
+                                : document.statusCode == 4 ? 'text-bg-success'
+                                : document.statusCode == 5 ? 'text-bg-primary'
+                                : document.statusCode == 6 ? 'text-bg-danger'
+                                : 'text-bg-secondary'">
+                    {{document.statusCode == 2 ? 'Tạm lưu'
+                    : document.statusCode == 3 ? 'Chờ duyệt'
+                    : document.statusCode == 4 ? 'Đã duyệt'
+                    : document.statusCode == 5 ? 'Ý kiến'
+                    : document.statusCode == 6 ? 'Không duyệt'
+                    : 'Quá hạn'}}</td>
+                  <td *ngIf="userRoles.approver" [ngClass]="document.actionClass || ''">
+                    {{document.approverAction}}
+                  </td>
+                  <td>
+                    <div>
+                      <div class="btn-group">
+                        <button type="button" class="btn btn-info" (click)="showAction(document.id)"><i class="fas fa-bars"></i></button>                        
+                        <div *ngIf="actionToShow == document.id" class="dropdown-menu" style="display: block !important; left: -160% !important;" role="menu">
+                          <div *ngIf="userRoles.specialist">
+                            <a class="dropdown-item" *ngIf="document.statusCode == 2 || document.statusCode == 6 || document.statusCode == 7"
+                              [routerLink]="['xu-ly', document.id]"><i class="fas fa-edit"></i> Chỉnh sửa</a>
+                            <a class="dropdown-item" [routerLink]="['document-detail', document.id]"><i class="fas fa-eye"></i> Xem</a>
+                            <a *ngIf="document.statusCode == 2 || document.statusCode == 6" (click)="updateStatus(document.id, 3)"
+                              class="dropdown-item"><i class="fas fa-share-square"></i> Gửi duyệt</a>
+                            <a *ngIf="document.statusCode == 2" (click)="deleteDocument(document.id)" class="dropdown-item">
+                              <i class="fas fa-trash-alt"></i> Xóa</a>
+                          </div>
+                          <div *ngIf="userRoles.generalSpecialist">                            
+                            <a class="dropdown-item" [routerLink]="['document-detail', document.id]"><i class="fas fa-eye"></i> Kết quả xử lý</a>
+                            <a class="dropdown-item" *ngIf="document.statusCode == 3" (click)="remind(document.id)"><i class="fas fa-bell"></i> Nhắc duyệt</a>
+                          </div>
+                          <div *ngIf="userRoles.approver">                            
+                              <a class="dropdown-item" [routerLink]="['document-detail', document.id]"><i class="fas fa-highlighter"></i> Xử lý</a>                            
+                          </div>
+                        </div>
+                      </div>                      
+                    </div>
+                  </td>
+                </tr> -->
+
+                <tr>
+                  <td>01</td>
+                  <td>Nguyễn Văn Thắng</td>
+                  <td>20/01/1998</td>
+                  <td>01245888845</td>
+                  <td>vanthang@gmail.com</td>
+                  <td>Cơ quan</td>
+                  <td>Phú Thọ</td>
+                  <td>Chuyên viên</td>
+                  <td>039985447</td>
+                  <td>1245666</td>
+                  <td>1221111</td>
+                  <td>
+                    <div>
+                      <div class="btn-group">
+                        <button type="button" class="btn btn-info" (click)="showAction(document.id)"><i class="fas fa-bars"></i></button>                        
+                        <div *ngIf="actionToShow == document.id" class="dropdown-menu" style="display: block !important; left: -160% !important;" role="menu">
+                          <div *ngIf="userRoles.specialist">
+                            <a class="dropdown-item" *ngIf="document.statusCode == 2 || document.statusCode == 6 || document.statusCode == 7"
+                              [routerLink]="['xu-ly', document.id]"><i class="fas fa-edit"></i> Chỉnh sửa</a>
+                            <a class="dropdown-item" [routerLink]="['document-detail', document.id]"><i class="fas fa-eye"></i> Xem</a>
+                            <a *ngIf="document.statusCode == 2 || document.statusCode == 6" (click)="updateStatus(document.id, 3)"
+                              class="dropdown-item"><i class="fas fa-share-square"></i> Gửi duyệt</a>
+                            <a *ngIf="document.statusCode == 2" (click)="deleteDocument(document.id)" class="dropdown-item">
+                              <i class="fas fa-trash-alt"></i> Xóa</a>
+                          </div>
+                          <div *ngIf="userRoles.generalSpecialist">                            
+                            <a class="dropdown-item" [routerLink]="['document-detail', document.id]"><i class="fas fa-eye"></i> Kết quả xử lý</a>
+                            <a class="dropdown-item" *ngIf="document.statusCode == 3" (click)="remind(document.id)"><i class="fas fa-bell"></i> Nhắc duyệt</a>
+                          </div>
+                          <div *ngIf="userRoles.approver">                            
+                              <a class="dropdown-item" [routerLink]="['document-detail', document.id]"><i class="fas fa-highlighter"></i> Xử lý</a>                            
+                          </div>
+                        </div>
+                      </div>                      
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <!-- /.card-body -->
+          <!-- /.card-body -->
+          <div class="card-footer clearfix">
+            <pagination-controls [nextLabel]="'Sau'" [previousLabel]="'Trước'" [autoHide]="true"
+              (pageChange)="currentPage = $event"></pagination-controls>
+
+          </div>
+        </div>
+        <!-- /.card -->
+      </div>
+      <!-- /.col -->
+    </div>
+    <!-- /.row -->
+  </div><!-- /.container-fluid -->
+
+  
+</section>

@@ -1,0 +1,222 @@
+<div class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <div class="col-sm-6">
+        <h1 class="m-0">Dashboard</h1>
+      </div><!-- /.col -->
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item active">Trang chủ</li>
+          <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
+        </ol>
+      </div><!-- /.col -->
+    </div><!-- /.row -->
+  </div><!-- /.container-fluid -->
+</div>
+<section class="content">
+  <div class="container-fluid">
+    <!-- Small boxes (Stat box) -->
+    <div class="row">
+
+      <div class="col-lg-3 col-6">
+        <!-- small box -->
+        <div class="small-box bg-info" [routerLink]="['/admin/to-trinh/0']">
+          <div class="inner">
+            <h3>{{dashboardInfo.all}}</h3>
+
+            <p>Tổng số chữ ký số</p>
+          </div>
+          <div class="icon">
+            <i class="ion ion-bag"></i>
+          </div>
+          <span class="small-box-footer">Xem thêm <i class="fas fa-arrow-circle-right"></i></span>
+        </div>
+      </div>
+      <!-- ./col -->
+      <div class="col-lg-3 col-6">
+        <!-- small box -->
+        <div class="small-box bg-success" [routerLink]="['/admin/to-trinh/4']">
+          <div class="inner">
+            <h3>{{dashboardInfo.approvedCount}}<sup style="font-size: 20px"></sup></h3>
+
+            <p>Đã duyệt</p>
+          </div>
+          <div class="icon">
+            <i class="ion ion-stats-bars"></i>
+          </div>
+          <span class="small-box-footer"> Xem thêm <i class="fas fa-arrow-circle-right"></i></span>
+        </div>
+      </div>
+      <!-- ./col -->
+      <div class="col-lg-3 col-6">
+        <!-- small box -->
+        <div class="small-box bg-warning" [routerLink]="['/admin/to-trinh/6']">
+          <div class="inner">
+            <h3>{{dashboardInfo.declinedCount}}</h3>
+
+            <p>Không duyệt</p>
+          </div>
+          <div class="icon">
+            <i class="ion ion-person-add"></i>
+          </div>
+          <span class="small-box-footer"> Xem thêm <i class="fas fa-arrow-circle-right"></i></span>
+        </div>
+      </div>
+      <!-- ./col -->
+      <div class="col-lg-3 col-6">
+        <!-- small box -->
+        <div class="small-box bg-danger" [routerLink]="['/admin/to-trinh/3']">
+          <div class="inner">
+            <h3>{{dashboardInfo.pendingCount}}</h3>
+
+            <p>Chờ duyệt / Quá hạn</p>
+          </div>
+          <div class="icon">
+            <i class="ion ion-pie-graph"></i>
+          </div>
+          <span class="small-box-footer"> Xem thêm <i class="fas fa-arrow-circle-right"></i></span>
+        </div>
+      </div>      
+    </div>
+
+
+    <div class="row">
+      <section class="col-lg-7 connectedSortable ui-sortable">
+        <div class="card" style="position: relative; left: 0px; top: 0px;">
+          <div class="card-header ui-sortable-handle">
+            <h3 class="card-title">
+              <i class="fas fa-th mr-1"></i>
+              Theo tháng
+            </h3>
+            <div class="card-tools">
+
+            </div>
+          </div>
+          <div class="card-body">
+            <!-- <div class="chartjs-size-monitor">
+              <div class="chartjs-size-monitor-expand">
+                <div class=""></div>
+              </div>
+              <div class="chartjs-size-monitor-shrink">
+                <div class=""></div>
+              </div>
+            </div>
+            <canvas class="chart chartjs-render-monitor" id="line-chart"
+              style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%; display: block; width: 649px;"
+              width="811" height="312">
+            </canvas>               -->
+            <div style="display: block;">
+              <app-line-chart></app-line-chart>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="col-lg-5 connectedSortable ui-sortable">
+        <div class="card">
+          <div class="card-header ui-sortable-handle">
+            <h3 class="card-title">
+              <i class="fas fa-chart-pie mr-1"></i>
+              Theo lĩnh vực
+            </h3>
+            <div class="card-tools">
+
+            </div>
+          </div>
+          <div class="card-body">
+            <!-- <div class="tab-content p-0">
+              <div class="chart tab-pane active" id="sales-chart" style="position: relative; height: 300px;">
+                <div class="chartjs-size-monitor">
+                  <div class="chartjs-size-monitor-expand">
+                    <div class=""></div>
+                  </div>
+                  <div class="chartjs-size-monitor-shrink">
+                    <div class=""></div>
+                  </div>
+                </div>
+                <canvas id="sales-chart-canvas" height="375" style="height: 300px; display: block; width: 649px;"
+                  width="811" class="chartjs-render-monitor"></canvas>
+              </div>
+            </div> -->
+            <div style="display: block;">
+              <app-pie-chart></app-pie-chart>              
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</section>
+
+
+<div class="container-fluid">
+  <div class="d-flex flex-wrap justify-content-evenly">
+
+    <div hidden class="rounded-4 mt-5  p-5" style="width: 100%;">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2>Tờ trình mới</h2>
+        <i class="fa-solid fa-gear fa-2xl"></i>
+      </div>
+
+      <div style="overflow-x: scroll;" class="mt-5">
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Tên</th>
+              <th scope="col">Ngày trình</th>
+              <th scope="col">Ngày kết thúc</th>
+              <th scope="col">Người trình</th>
+              <th scope="col">Lĩnh vực</th>
+              <th scope="col">Trạng thái</th>
+              <th *ngIf="approverAction"></th>
+              <th *ngIf="specialistAction"></th>
+              <th *ngIf="approverAction"></th>
+              <th *ngIf="generalAction"></th>
+
+            </tr>
+          </thead>
+          <tbody class="align-middle"
+            *ngFor="let document of documents | paginate: { itemsPerPage: itemsPerPage, currentPage: currentPage }">
+            <tr>
+              <td>{{document.title}}</td>
+              <td>{{document.created | date: 'hh:mm aa dd/MM/yyyy'}}</td>
+              <td>{{document.dateEndApproval | date: 'dd/MM/yyyy'}}</td>
+              <td>{{document.authorName}}</td>
+              <td>{{document.fieldName}}</td>
+              <td [ngClass]="document.statusCode == 2 ? ''
+                        : document.statusCode == 3 ? 'text-bg-warning'
+                        : document.statusCode == 4 ? 'text-bg-success'
+                        : document.statusCode == 5 ? 'text-bg-primary'
+                        : document.statusCode == 6 ? 'text-bg-danger'
+                        : 'text-bg-secondary'">
+                {{document.statusCode == 2 ? 'Tạm lưu'
+                : document.statusCode == 3 ? 'Chờ duyệt'
+                : document.statusCode == 4 ? 'Đã duyệt'
+                : document.statusCode == 5 ? 'Ý kiến'
+                : document.statusCode == 6 ? 'Không duyệt'
+                : 'Quá hạn'}}</td>
+              <td *ngIf="approverAction" [ngClass]="document.actionClass || ''">
+                {{document.approverAction}}
+              </td>
+              <td *ngIf="specialistAction">
+                <div class="d-flex justify-content-around">
+                  <div><a [routerLink]="['/admin/to-trinh/0/xu-ly', document.id]"><i matTooltip="Chỉnh sửa"
+                        class="text-secondary fas fa-edit"></i></a></div>
+                </div>
+              </td>
+              <td *ngIf="approverAction"><a [routerLink]="['/admin/to-trinh/0/xu-ly', document.id]"><i
+                    matTooltip="Xử lý" class="text-success fas fa-highlighter"></i></a></td>
+              <td *ngIf="generalAction"><a [routerLink]="['/admin/to-trinh/0/approval-summary', document.id]"><i
+                    matTooltip="Kết quả duyệt" class="text-success fas fa-poll"></i></a></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="mt-4 d-flex justify-content-end">
+          <pagination-controls [nextLabel]="'Sau'" [previousLabel]="'Trước'" [autoHide]="true"
+            (pageChange)="currentPage = $event"></pagination-controls>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
